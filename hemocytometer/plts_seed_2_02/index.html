@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PLT | SD 2 | SL 02</title>
+    <script type="text/javascript" src="../../osd410/openseadragon.min.js"></script>
+    <style>
+        BODY {
+            padding: 0;
+            margin: 0;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            position: absolute;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            background-color: #363945;
+        }
+        #navigator {
+          display: flex;
+          height: 100%;
+          width: 100px;
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+        #navigator > div {
+          display: flex !important;
+        }
+        #navigator_holder {
+          display: flex;
+          height: 150px;
+          width: 100%;
+          align-self: center;
+          /*background: white;*/
+          background-color: #363945;
+          border-radius: 10px 0 0 10px;
+          box-shadow: 0px 0px 5px -1px #363945;;
+        }
+    </style>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L94EPJSKWB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-L94EPJSKWB');
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="navigator">
+    	<div id="navigator_holder"></div>
+    </div>
+    <script type="text/javascript">
+      dzi_cell_type = 'plts/plts_';
+      dzi_array = [];
+      dzi_base_loc = 'https://dh2aywj3687n9.cloudfront.net/teach/virtual_scope/hemocytometer/';
+      for(i = 2; i <= 2; i++) {
+        // set src
+        dzi_src = String(i).padStart(2, '0');
+        for(s = 1; s <= 2; s++) {
+          dzi_array[s-1] = dzi_base_loc + dzi_cell_type + dzi_src + '_c' + s + '/output.dzi';
+        }
+      }
+      viewer = OpenSeadragon({
+      id: 'map'
+      , prefixUrl: "./"
+	    , defaultZoomLevel: 0.6
+	    //, homeFillsViewer: true
+	    , showNavigator: true
+	    , showZoomControl: false
+	    , showHomeControl: false
+	    , showFullPageControl: false
+	    , minZoomImageRatio: 0.7
+	    , maxZoomPixelRatio: 1.1
+      , wrapHorizontal: false
+      , wrapVertical: false
+      , zoomPerClick: 1
+      , animationTime: 0.1
+      , collectionMode: true
+      , collectionRows: 2
+      //, collectionColumns: 1
+      , collectionLayout: 'horizontal'
+      , collectionTileSize: 1
+      , collectionTileMargin: 0.05
+      , navigatorId: 'navigator_holder'
+      , allowZoomToConstraintsOnResize: true,
+        });
+      
+      viewer.open(dzi_array);
+    </script>
+</body>
+</html>
