@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>PLT | SD 2 | SL 03</title>
+    <title>PLT | SA 2-03</title>
     <script type="text/javascript" src="../../osd410/openseadragon.min.js"></script>
     <style>
         BODY {
@@ -59,14 +59,14 @@
     	<div id="navigator_holder"></div>
     </div>
     <script type="text/javascript">
-      dzi_cell_type = 'plts/plts_';
+      dzi_cell_type = 'plts/plts_seed_2_';
       dzi_array = [];
       dzi_base_loc = 'https://dh2aywj3687n9.cloudfront.net/teach/virtual_scope/hemocytometer/';
       for(i = 3; i <= 3; i++) {
         // set src
         dzi_src = String(i).padStart(2, '0');
         for(s = 1; s <= 2; s++) {
-          dzi_array[s-1] = dzi_base_loc + dzi_cell_type + dzi_src + '_c' + s + '/output.dzi';
+          dzi_array[s-1] = dzi_base_loc + dzi_cell_type + dzi_src +  '_c' + s + '/output.dzi';
         }
       }
       viewer = OpenSeadragon({
