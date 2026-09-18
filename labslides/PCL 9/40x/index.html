@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title> PCL 9 at 40x </title>
     <script type="text/javascript" src="../../osd3/openseadragon.min.js"></script>
+    <script type="text/javascript" src="../../counter_40x.js"></script>
     <style>
         BODY {
             padding: 0;
@@ -35,7 +36,7 @@
 <body>
     <div id="map"></div>
     <script type="text/javascript">
-        OpenSeadragon({
+        window.viewer = OpenSeadragon({
             id: 'map'
             , prefixUrl: "output_files"
             , tileSources: "https://dh2aywj3687n9.cloudfront.net/teach/virtual_scope/lab_slides/PCL 9/40x/output.dzi"
@@ -49,6 +50,8 @@
       , wrapHorizontal: false
       , wrapVertical: false
       , zoomPerClick: 1
+      , animationTime: 0.1
+      , springStiffness: 15
         });
     </script>
 </body>
