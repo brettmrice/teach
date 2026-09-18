@@ -974,6 +974,21 @@
     return { center: { x: 0.5, y: 0.5 }, zoom: 1 };
   }
 
+  function scrollHistoryListToBottom(smooth = true) {
+    requestAnimationFrame(() => {
+      const listEl = document.getElementById("counter40xHistoryList");
+      if (!listEl) return;
+      if (smooth) {
+        listEl.scrollTo({
+          top: listEl.scrollHeight,
+          behavior: "smooth"
+        });
+      } else {
+        listEl.scrollTop = listEl.scrollHeight;
+      }
+    });
+  }
+
   function handleNewField() {
     triggerSnapshotFlash();
 
@@ -989,6 +1004,7 @@
       soundFieldCommit();
       pulseElement("counter40xTotalFields");
       renderUI();
+      scrollHistoryListToBottom(true);
       return;
     }
 
@@ -1027,14 +1043,17 @@
     soundFieldCommit();
     pulseElement("counter40xTotalFields");
     renderUI();
+    scrollHistoryListToBottom(true);
   }
 
   function incrementCell(amount = 1) {
+    let wasFirstFieldStarted = false;
     if (!state.activeFieldStarted) {
       // Auto-start field 1 if user starts counting right away
       state.activeFieldStarted = true;
       state.activeFieldViewport = captureCurrentViewport();
       triggerSnapshotFlash();
+      wasFirstFieldStarted = true;
     } else if (!state.activeFieldViewport) {
       state.activeFieldViewport = captureCurrentViewport();
     }
@@ -1077,6 +1096,9 @@
     soundSuccess();
     pulseElement("counter40xAvgCells");
     renderUI();
+    if (wasFirstFieldStarted) {
+      scrollHistoryListToBottom(true);
+    }
   }
 
   function undoLastAction() {
