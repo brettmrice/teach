@@ -24,12 +24,12 @@
       left: 0;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 999999;
+      z-index: 999998;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       user-select: none;
       display: flex;
       align-items: center;
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease, opacity 0.2s ease;
+      transition: filter 0.2s ease, opacity 0.2s ease;
     }
 
     .counter100x-wrapper.inactive {
@@ -43,7 +43,18 @@
     }
 
     .counter100x-wrapper.minimized {
-      transform: translateY(-50%) translateX(calc(-100% + 28px));
+      top: 50%;
+      transform: translateY(calc(-50% + 36px));
+    }
+
+    .counter100x-wrapper.minimized.displaced-top {
+      top: 50% !important;
+      transform: translateY(var(--counter100x-displaced-top, calc(-50% - 320px))) !important;
+    }
+
+    .counter100x-wrapper.minimized.displaced-bottom {
+      top: 50% !important;
+      transform: translateY(var(--counter100x-displaced-bottom, calc(-50% + 320px))) !important;
     }
 
     .counter100x-card {
@@ -62,88 +73,163 @@
       box-sizing: border-box;
     }
 
-    .counter100x-status-tab {
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-bottom: 1px solid #ffffff;
-      border-radius: 6px 6px 0 0;
-      padding: 3px 9px 2px 9px;
-      margin-bottom: -1px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.04);
-      color: #10b981;
-      pointer-events: none;
-      z-index: 10;
-      white-space: nowrap;
+    .counter100x-wrapper.minimized .counter100x-card {
+      width: 154px;
+      box-sizing: border-box;
+      padding: 6px 10px 7px 10px;
+      border-radius: 0 10px 10px 0;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.16);
+      cursor: pointer;
     }
 
-    .counter100x-toggle-btn {
-      width: 26px;
-      height: 54px;
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-left: none;
-      border-radius: 0 8px 8px 0;
-      cursor: pointer;
+    .counter100x-wrapper.minimized .counter100x-card:hover {
+      background: #f8fafc;
+      border-color: #38bdf8;
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.22);
+    }
+
+    .counter100x-wrapper.minimized .counter100x-status-bar,
+    .counter100x-wrapper.minimized #counter100xModePanel,
+    .counter100x-wrapper.minimized .counter100x-summary,
+    .counter100x-wrapper.minimized .counter100x-history-title,
+    .counter100x-wrapper.minimized .counter100x-history-list,
+    .counter100x-wrapper.minimized .counter100x-bottom-actions {
+      display: none !important;
+    }
+
+    .counter100x-status-bar {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #64748b;
-      box-shadow: 3px 0 8px rgba(0, 0, 0, 0.08);
-      outline: none;
-      padding: 0;
-      transition: background-color 0.15s, color 0.15s;
-    }
-
-    .counter100x-toggle-btn:hover {
-      background: #f1f5f9;
-      color: #0f172a;
-    }
-
-    .counter100x-toggle-btn svg {
-      transition: transform 0.25s ease;
-    }
-
-    .counter100x-wrapper.minimized .counter100x-toggle-btn svg {
-      transform: rotate(180deg);
+      gap: 6px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 4px 8px;
+      margin-bottom: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #10b981;
+      user-select: none;
     }
 
     .counter100x-header {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       margin-bottom: 8px;
       padding-bottom: 6px;
       border-bottom: 1px solid #e2e8f0;
-      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .counter100x-wrapper.minimized .counter100x-header {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .counter100x-wrapper:not(.minimized) .counter100x-collapse-indicator {
+      display: none !important;
     }
 
     .counter100x-title-group {
-      display: inline-flex;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 3px;
+      width: 100%;
+    }
+
+    .counter100x-wrapper:not(.minimized) .counter100x-title-group {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .counter100x-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 6px;
       width: 100%;
     }
 
+    .counter100x-wrapper.minimized .counter100x-title-row {
+      justify-content: center;
+    }
+
+    .counter100x-collapse-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      line-height: 1.3;
+    }
+
+    .counter100x-collapse-indicator.perform {
+      background: #f0f9ff;
+      color: #0284c7;
+      border: 1px solid #bae6fd;
+    }
+    .counter100x-collapse-indicator.perform:hover {
+      background: #e0f2fe;
+      border-color: #7dd3fc;
+      color: #0369a1;
+    }
+
+    .counter100x-collapse-indicator.in-progress {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+    .counter100x-collapse-indicator.in-progress:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
+
+    .counter100x-collapse-indicator.complete {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .counter100x-collapse-indicator.complete:hover {
+      background: #d1fae5;
+      border-color: #6ee7b7;
+      color: #047857;
+    }
+
+    .counter100x-collapse-indicator-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
     .counter100x-help-btn {
-      width: 36px;
-      height: 36px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: #f1f5f9;
       color: #0284c7;
       border: 1.5px solid #cbd5e1;
-      font-size: 20px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
@@ -152,6 +238,7 @@
       padding: 0;
       transition: all 0.15s ease;
       flex-shrink: 0;
+      margin-left: auto;
     }
 
     .counter100x-help-btn:hover {
@@ -160,14 +247,25 @@
       border-color: #0284c7;
     }
 
+    .counter100x-wrapper.minimized .counter100x-help-btn {
+      display: none !important;
+    }
+
     .counter100x-title {
-      font-size: 12.5px;
+      font-size: 14px;
       line-height: 1.25;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #334155;
+      letter-spacing: 0.6px;
+      color: #0369a1;
+      text-align: left;
+      flex: 1;
+    }
+
+    .counter100x-wrapper.minimized .counter100x-title {
+      font-size: 12px;
       text-align: center;
+      flex: none;
     }
 
     .counter100x-dot {
@@ -509,43 +607,36 @@
 
     .counter100x-actions {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 8px;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 4px;
     }
 
     .counter100x-bottom-actions {
+      margin-top: 6px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      margin-top: 8px;
+      gap: 5px;
       width: 100%;
       box-sizing: border-box;
     }
 
     .counter100x-btn {
-      width: auto;
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 6px 8px 6px 6px;
+      padding: 4px 8px;
       border-radius: 6px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
       border: 1px solid transparent;
       outline: none;
       transition: all 0.15s ease;
-      box-sizing: border-box;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .counter100x-btn-primary {
@@ -559,14 +650,31 @@
     }
 
     .counter100x-btn-secondary {
-      background: #f1f5f9;
-      color: #334155;
-      border-color: #cbd5e1;
+      background: #f0f9ff;
+      color: #0369a1;
+      border-color: #bae6fd;
     }
 
     .counter100x-btn-secondary:hover:not(:disabled) {
-      background: #e2e8f0;
-      color: #0f172a;
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .counter100x-btn-minimize {
+      width: 100%;
+      margin-top: 4px;
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 5px 8px;
+    }
+
+    .counter100x-btn-minimize:hover:not(:disabled) {
+      background: #f1f5f9;
+      color: #334155;
+      border-color: #cbd5e1;
     }
 
     .counter100x-btn:disabled {
@@ -925,7 +1033,7 @@
 
   // State
   const state = {
-    minimized: false,
+    minimized: true,
     mouseInWindow: true,
     activeFieldStarted: false, // true when user presses [1] to begin Field #1
     activeFieldViewport: null, // { center: {x, y}, zoom } captured when current field begins
@@ -1866,12 +1974,20 @@
       }
     }
 
-    // Render Share Action below field log
+    // Render Share & Minimize Action below field log
     const bottomActionsEl = document.getElementById("counter100xBottomActions");
     if (bottomActionsEl) {
       bottomActionsEl.innerHTML = `
-        <button class="counter100x-btn counter100x-btn-primary" id="counter100xShareBtn" ${currentFieldCount === 0 ? "disabled" : ""}>
-          <span>🔗</span> ${state.isReviewMode ? "Copy Share Link" : "Share Review Link"}
+        <div class="counter100x-actions">
+          <button class="counter100x-btn counter100x-btn-secondary" id="counter100xShareBtn" title="Share Review Link" ${currentFieldCount === 0 ? "disabled" : ""}>
+            <span>🔗</span> Share
+          </button>
+          <button class="counter100x-btn counter100x-btn-secondary" id="counter100xResetBtn" title="Reset Counts">
+            <span>↻</span> Reset
+          </button>
+        </div>
+        <button class="counter100x-btn counter100x-btn-minimize" id="counter100xMinimizeBtn" title="Minimize Platelet Estimate">
+          <span>▾</span> Minimize Task
         </button>
       `;
 
@@ -1881,6 +1997,41 @@
           e.preventDefault();
           copyShareLink();
         };
+      }
+
+      const resetBtn = document.getElementById("counter100xResetBtn");
+      if (resetBtn) {
+        resetBtn.onclick = (e) => {
+          e.preventDefault();
+          resetAll();
+        };
+      }
+
+      const minimizeBtn = document.getElementById("counter100xMinimizeBtn");
+      if (minimizeBtn) {
+        minimizeBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.__Counter100X.collapse();
+        };
+      }
+    }
+
+    // Update Header Status Indicator (Perform / In Progress / Complete)
+    const statusIndicatorEl = document.getElementById("counter100xStatusIndicator");
+    if (statusIndicatorEl) {
+      if (committedFields >= 10) {
+        statusIndicatorEl.className = "counter100x-collapse-indicator complete";
+        statusIndicatorEl.innerHTML = `<span class="counter100x-collapse-indicator-dot"></span><span>Complete</span>`;
+        statusIndicatorEl.title = `Task complete (${committedFields} fields logged). Click to expand/collapse.`;
+      } else if (committedFields > 0 || state.activeFieldStarted || state.currentFieldCells > 0) {
+        statusIndicatorEl.className = "counter100x-collapse-indicator in-progress";
+        statusIndicatorEl.innerHTML = `<span class="counter100x-collapse-indicator-dot"></span><span>In Progress</span>`;
+        statusIndicatorEl.title = `In progress (${currentFieldCount}/10 fields). Click to expand/collapse.`;
+      } else {
+        statusIndicatorEl.className = "counter100x-collapse-indicator perform";
+        statusIndicatorEl.innerHTML = `<span>Perform</span>`;
+        statusIndicatorEl.title = "Click to perform Platelet Estimate";
       }
     }
   }
@@ -2055,22 +2206,25 @@
 
     // Create wrapper
     const wrapper = document.createElement("div");
-    wrapper.className = "counter100x-wrapper";
+    wrapper.className = "counter100x-wrapper" + (state.minimized ? " minimized" : "");
     wrapper.id = "counter100xWrapper";
 
     wrapper.innerHTML = `
       <div class="counter100x-card">
-        <div class="counter100x-status-tab" id="counter100xStatusTab">
+        <div class="counter100x-status-bar" id="counter100xStatusBar">
           <div class="counter100x-dot" id="counter100xDot"></div>
           <span id="counter100xStatusText">ACTIVE</span>
         </div>
 
         <div class="counter100x-header">
-          <div class="counter100x-title-group">
-            <div class="counter100x-title">
-              <span>Platelet Estimate</span>
+          <div class="counter100x-title-group" id="counter100xHeaderTitleGroup">
+            <div class="counter100x-title-row">
+              <div class="counter100x-title">Platelet Estimate</div>
+              <button class="counter100x-help-btn" id="counter100xHelpBtn" title="Procedure & Key Controls">?</button>
             </div>
-            <button class="counter100x-help-btn" id="counter100xHelpBtn" title="Procedure & Key Controls">?</button>
+            <div id="counter100xStatusIndicator" class="counter100x-collapse-indicator perform">
+              <span>Perform</span>
+            </div>
           </div>
         </div>
 
@@ -2098,35 +2252,81 @@
 
         <div class="counter100x-bottom-actions" id="counter100xBottomActions"></div>
       </div>
-
-      <button class="counter100x-toggle-btn" id="counter100xToggleBtn" title="Collapse/Expand Counter">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
     `;
 
     document.body.appendChild(wrapper);
+
+    // Expose API for coordination
+    window.__Counter100X = {
+      expand: () => {
+        // If Differential100X is currently expanded, collapse it first to prevent overlapping transitions
+        if (window.__Differential100X && typeof window.__Differential100X.isMinimized === "function" && !window.__Differential100X.isMinimized()) {
+          window.__Differential100X.collapse();
+        }
+        state.minimized = false;
+        wrapper.classList.remove("minimized");
+        if (typeof window.__update100xTaskPositions === "function") {
+          window.__update100xTaskPositions();
+        }
+      },
+      collapse: () => {
+        state.minimized = true;
+        wrapper.classList.add("minimized");
+        if (typeof window.__update100xTaskPositions === "function") {
+          window.__update100xTaskPositions();
+        }
+      },
+      isMinimized: () => Boolean(state.minimized),
+      showProcedure: showProcedureModal,
+      closeProcedure: closeProcedureModal
+    };
+
+    // Observe active card size changes (e.g. visited fields toggle, adding fields, window resizing)
+    const counterCardEl = wrapper.querySelector(".counter100x-card");
+    if (counterCardEl && typeof ResizeObserver !== "undefined") {
+      const resizeObserver = new ResizeObserver(() => {
+        if (typeof window.__update100xTaskPositions === "function") {
+          window.__update100xTaskPositions();
+        }
+      });
+      resizeObserver.observe(counterCardEl);
+    }
+    window.addEventListener("resize", () => {
+      if (typeof window.__update100xTaskPositions === "function") {
+        window.__update100xTaskPositions();
+      }
+    });
 
     // Help button click listener
     const helpBtn = document.getElementById("counter100xHelpBtn");
     if (helpBtn) {
       helpBtn.addEventListener("click", (e) => {
-        e.preventDefault();
+        e.stopPropagation();
         showProcedureModal();
       });
     }
 
-    // Toggle button collapse/expand
-    const toggleBtn = document.getElementById("counter100xToggleBtn");
-    toggleBtn.addEventListener("click", () => {
-      state.minimized = !state.minimized;
-      if (state.minimized) {
-        wrapper.classList.add("minimized");
-      } else {
-        wrapper.classList.remove("minimized");
-      }
-    });
+    const statusIndicatorElInit = document.getElementById("counter100xStatusIndicator");
+    if (statusIndicatorElInit) {
+      statusIndicatorElInit.onclick = (e) => {
+        e.stopPropagation();
+        if (state.minimized) {
+          window.__Counter100X.expand();
+        } else {
+          window.__Counter100X.collapse();
+        }
+      };
+    }
+
+    // Clicking anywhere on card when minimized expands task
+    const cardEl = wrapper.querySelector(".counter100x-card");
+    if (cardEl) {
+      cardEl.addEventListener("click", (e) => {
+        if (state.minimized) {
+          window.__Counter100X.expand();
+        }
+      });
+    }
 
     // Window focus / blur tracking
     document.addEventListener("mouseenter", () => updateTrackingStatus(true));
@@ -2140,9 +2340,13 @@
 
     // Global keyboard listener
     window.addEventListener("keydown", function (e) {
-      if (isProcedureModalOpen()) {
+      const procBackdrop = document.getElementById("counter100xModalBackdrop");
+      const taskBackdrop = document.getElementById("labTaskSelectionModalBackdrop");
+      if ((procBackdrop && procBackdrop.classList.contains("open")) ||
+          (taskBackdrop && taskBackdrop.classList.contains("open"))) {
         if (e.key === "Escape") {
           closeProcedureModal();
+          if (taskBackdrop) taskBackdrop.classList.remove("open");
           e.preventDefault();
           e.stopPropagation();
         }
@@ -2150,6 +2354,11 @@
       }
 
       if (state.isReviewMode) {
+        return;
+      }
+
+      // If counter is minimized or if differential counter is active, ignore counter_100x key controls
+      if (state.minimized || (window.__Differential100XInitialized && window.__Differential100X && !window.__Differential100X.isMinimized?.())) {
         return;
       }
 
@@ -2190,8 +2399,8 @@
     const isReview = loadReviewFromUrl();
     renderUI();
 
-    // Show procedure modal on initial page load if not in review mode and not suppressed
-    if (!isReview) {
+    // Show initial startup modal only if differential_100x is not loaded (if standalone)
+    if (!isReview && !window.__Differential100XInitialized) {
       try {
         if (localStorage.getItem("counter100x_hide_procedure") !== "1") {
           showProcedureModal();
