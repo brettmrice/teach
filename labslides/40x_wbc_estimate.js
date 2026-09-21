@@ -598,28 +598,30 @@
 
     .counter40x-toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 28px;
       left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #0f172a;
+      transform: translateX(-50%);
+      background: #1e293b;
       color: #ffffff;
-      padding: 9px 16px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-      z-index: 1000000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      padding: 10px 22px;
+      border-radius: 28px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      z-index: 1000001;
       opacity: 0;
-      pointer-events: none;
       transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
     }
 
     .counter40x-toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+      transform: translateX(-50%) translateY(-8px);
     }
 
     .counter40x-snapshot-flash {
