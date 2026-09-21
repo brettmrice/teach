@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title> PMF 5 at 100x </title>
     <script type="text/javascript" src="../../../osd_6.1.1/openseadragon.min.js"></script>
+    <script type="text/javascript" src="../../100x_wbc_differential.js"></script>
+    <script type="text/javascript" src="../../100x_rbc_morphology.js"></script>
+    <script type="text/javascript" src="../../100x_plt_estimate.js"></script>
     <style>
         BODY {
             padding: 0;
@@ -35,7 +38,7 @@
 <body>
     <div id="map"></div>
     <script type="text/javascript">
-        OpenSeadragon({
+        window.viewer = OpenSeadragon({
             id: 'map'
             , prefixUrl: "output_files"
             , tileSources: "https://dh2aywj3687n9.cloudfront.net/teach/virtual_scope/lab_slides/PMF 5/100x/output.dzi"
