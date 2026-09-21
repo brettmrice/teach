@@ -89,6 +89,7 @@
     }
 
     .counter100x-wrapper.minimized .counter100x-status-bar,
+    .counter100x-wrapper.minimized .counter100x-progress-card,
     .counter100x-wrapper.minimized #counter100xModePanel,
     .counter100x-wrapper.minimized .counter100x-summary,
     .counter100x-wrapper.minimized .counter100x-history-title,
@@ -106,15 +107,21 @@
       box-sizing: border-box;
       padding: 4px 8px;
       margin-bottom: 8px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: #f0f9ff;
+      border: 1px solid #e0f2fe;
       border-radius: 6px;
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: #10b981;
+      color: #0284c7;
       user-select: none;
+    }
+
+    .counter100x-status-bar.inactive {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+      color: #64748b;
     }
 
     .counter100x-header {
@@ -272,8 +279,8 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+      background: #0284c7;
+      box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
     }
 
     .counter100x-dot.inactive {
@@ -284,6 +291,60 @@
     .counter100x-dot.review {
       background: #0284c7;
       box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
+    }
+
+    /* Primary Progress Banner matching WBC differential */
+    .counter100x-progress-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .counter100x-progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0369a1;
+    }
+
+    .counter100x-progress-header-label {
+      font-weight: 700;
+      color: #0369a1;
+    }
+
+    .counter100x-progress-header-val {
+      font-weight: 700;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: #0284c7;
+    }
+
+    .counter100x-progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: #bae6fd;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .counter100x-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #0369a1);
+      width: 0%;
+      transition: width 0.2s ease;
+      border-radius: 999px;
+    }
+
+    .counter100x-progress-bar-fill.complete {
+      background: linear-gradient(90deg, #10b981, #059669);
     }
 
     .counter100x-summary {
@@ -695,28 +756,30 @@
 
     .counter100x-toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 28px;
       left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #0f172a;
+      transform: translateX(-50%);
+      background: #1e293b;
       color: #ffffff;
-      padding: 9px 16px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-      z-index: 1000000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      padding: 10px 22px;
+      border-radius: 28px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      z-index: 1000001;
       opacity: 0;
-      pointer-events: none;
       transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
     }
 
     .counter100x-toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+      transform: translateX(-50%) translateY(-8px);
     }
 
     .counter100x-snapshot-flash {
@@ -1071,11 +1134,26 @@
     return { center: { x: 0.5, y: 0.5 }, zoom: 1 };
   }
 
+  function scrollHistoryListToTop(smooth = true) {
+    requestAnimationFrame(() => {
+      const listEl = document.getElementById("counter100xHistoryList");
+      if (!listEl) return;
+      if (smooth && typeof listEl.scrollTo === "function") {
+        listEl.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      } else {
+        listEl.scrollTop = 0;
+      }
+    });
+  }
+
   function scrollHistoryListToBottom(smooth = true) {
     requestAnimationFrame(() => {
       const listEl = document.getElementById("counter100xHistoryList");
       if (!listEl) return;
-      if (smooth) {
+      if (smooth && typeof listEl.scrollTo === "function") {
         listEl.scrollTo({
           top: listEl.scrollHeight,
           behavior: "smooth"
@@ -1101,7 +1179,7 @@
       soundFieldCommit();
       pulseElement("counter100xTotalFields");
       renderUI();
-      scrollHistoryListToBottom(true);
+      scrollHistoryListToTop(true);
       return;
     }
 
@@ -1138,7 +1216,7 @@
     soundFieldCommit();
     pulseElement("counter100xTotalFields");
     renderUI();
-    scrollHistoryListToBottom(true);
+    scrollHistoryListToTop(true);
   }
 
   function incrementCell(amount = 1) {
@@ -1271,7 +1349,7 @@
     }
   }
 
-  function showToast(message) {
+  function showToast(message, icon = "✓") {
     let toast = document.getElementById("counter100xToast");
     if (!toast) {
       toast = document.createElement("div");
@@ -1279,7 +1357,7 @@
       toast.id = "counter100xToast";
       document.body.appendChild(toast);
     }
-    toast.innerHTML = `<span>✓</span> <span>${message}</span>`;
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
     toast.classList.add("show");
     setTimeout(() => {
       toast.classList.remove("show");
@@ -1302,7 +1380,7 @@
     return list;
   }
 
-  function generateShareUrl() {
+  function getSharePayload() {
     const fieldsToShare = getAllFieldsForShare();
     if (fieldsToShare.length === 0) return null;
     const compactFields = fieldsToShare.map(f => {
@@ -1325,18 +1403,33 @@
     });
 
     const jsonStr = JSON.stringify(compactFields);
-    const encoded = btoa(encodeURIComponent(jsonStr));
+    return btoa(encodeURIComponent(jsonStr));
+  }
+
+  function generateShareUrl() {
+    if (typeof window.__generateUnifiedLabShareUrl === "function") {
+      const unified = window.__generateUnifiedLabShareUrl();
+      if (unified) return unified;
+    }
+    const encoded = getSharePayload();
+    if (!encoded) return null;
 
     const url = new URL(window.location.href);
-    url.searchParams.set("review", encoded);
+    url.searchParams.set("plt_review", encoded);
     return url.toString();
   }
 
   function copyShareLink() {
     const totalFields = state.fields.length + (!state.isReviewMode && state.activeFieldStarted ? 1 : 0);
-    if (totalFields === 0) {
+    if (totalFields === 0 && !state.isReviewMode) {
       soundError();
-      showToast("No fields counted yet to share.");
+      showToast("Count a field before sharing.", "ℹ");
+      return;
+    }
+
+    if (!state.isReviewMode && totalFields < 10) {
+      soundError();
+      showToast("First complete 10 fields before sharing.", "ℹ");
       return;
     }
 
@@ -1375,8 +1468,16 @@
   function cleanUrlReviewParam() {
     try {
       const url = new URL(window.location.href);
+      let changed = false;
+      if (url.searchParams.has("plt_review")) {
+        url.searchParams.delete("plt_review");
+        changed = true;
+      }
       if (url.searchParams.has("review")) {
         url.searchParams.delete("review");
+        changed = true;
+      }
+      if (changed) {
         const cleanPath = url.pathname + (url.search ? url.search : "") + url.hash;
         window.history.replaceState({}, document.title, cleanPath);
       }
@@ -1464,14 +1565,21 @@
 
   function loadReviewFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    const reviewParam = params.get("review");
+    const reviewParam = params.get("plt_review") || params.get("review");
     if (!reviewParam) return false;
 
     cleanUrlReviewParam();
 
     try {
-      const decodedJson = decodeURIComponent(atob(reviewParam));
-      const rawFields = JSON.parse(decodedJson);
+      let rawFields = null;
+      try {
+        const decodedJson = decodeURIComponent(atob(reviewParam));
+        rawFields = JSON.parse(decodedJson);
+      } catch (e) {
+        const decodedJson = decodeURIComponent(reviewParam);
+        rawFields = JSON.parse(decodedJson);
+      }
+
       if (Array.isArray(rawFields) && rawFields.length > 0) {
         state.fields = rawFields.map((f, i) => {
           const fieldId = "f_rev_" + (i + 1);
@@ -1492,12 +1600,32 @@
           };
         });
         state.isReviewMode = true;
+        state.minimized = false;
         state.activeFieldStarted = true;
         state.currentFieldCells = 0;
         state.currentFieldCellViews = [];
         state.selectedFieldId = null;
         state.selectedCellId = null;
         state.expandedFieldIds.clear();
+
+        // Collapse other tasks
+        if (window.__Differential100X && typeof window.__Differential100X.collapse === "function") {
+          window.__Differential100X.collapse();
+        }
+        if (window.__Differential100X && typeof window.__Differential100X.closeProcedure === "function") {
+          window.__Differential100X.closeProcedure();
+        }
+        if (window.__RbcMorphology100X && typeof window.__RbcMorphology100X.collapse === "function") {
+          window.__RbcMorphology100X.collapse();
+        }
+        if (window.__RbcMorphology100X && typeof window.__RbcMorphology100X.closeProcedure === "function") {
+          window.__RbcMorphology100X.closeProcedure();
+        }
+
+        // Close any startup modal backdrop or procedure modals
+        const taskBackdrop = document.getElementById("labTaskSelectionModalBackdrop");
+        if (taskBackdrop) taskBackdrop.classList.remove("open");
+        closeProcedureModal();
 
         autoJumpToFirstFieldWhenReady();
         return true;
@@ -1676,13 +1804,24 @@
       if (active) {
         dot.className = "counter100x-dot";
         text.textContent = "ACTIVE";
-        text.style.color = "#10b981";
+        text.style.color = "#0284c7";
       } else {
         dot.className = "counter100x-dot inactive";
         text.textContent = "INACTIVE";
-        text.style.color = "#94a3b8";
+        text.style.color = "#64748b";
       }
     }
+  }
+
+  function getPltStatus() {
+    const committedFields = state.fields.length;
+    if (committedFields >= 10 || state.isReviewMode) {
+      return { text: "COMPLETE", className: "complete", isComplete: true };
+    }
+    if (committedFields > 0 || state.activeFieldStarted || state.currentFieldCells > 0) {
+      return { text: "IN PROGRESS", className: "in-progress", isComplete: false };
+    }
+    return { text: "PERFORM", className: "perform", isComplete: false };
   }
 
   function renderUI() {
@@ -1786,6 +1925,25 @@
       }
     }
 
+    // Render Progress Card (Target: 10 Fields, styled like WBC Diff)
+    const progressCardEl = document.getElementById("counter100xProgressCard");
+    if (progressCardEl) {
+      const targetFields = 10;
+      const pct = Math.min(100, Math.round((committedFields / targetFields) * 100));
+      const isComplete = committedFields >= targetFields;
+      progressCardEl.innerHTML = `
+        <div class="counter100x-progress-header">
+          <span class="counter100x-progress-header-label">Total Fields Evaluated</span>
+          <span class="counter100x-progress-header-val">
+            <b>${committedFields}</b> / ${targetFields} Fields
+          </span>
+        </div>
+        <div class="counter100x-progress-bar-bg">
+          <div class="counter100x-progress-bar-fill ${isComplete ? "complete" : ""}" style="width: ${pct}%;"></div>
+        </div>
+      `;
+    }
+
     // Update stats
     const totalFieldsEl = document.getElementById("counter100xTotalFields");
     const totalCellsEl = document.getElementById("counter100xTotalCells");
@@ -1795,7 +1953,7 @@
     if (totalCellsEl) totalCellsEl.textContent = totalCells;
     if (avgCellsEl) avgCellsEl.textContent = avgCells;
 
-    // Render Visited Fields List
+    // Render Visited Fields List (Sorted descending: in-progress first, then newest committed fields)
     const listEl = document.getElementById("counter100xHistoryList");
     if (listEl) {
       const showInProgress = !state.isReviewMode && state.activeFieldStarted;
@@ -1806,60 +1964,7 @@
       } else {
         let itemsHtml = "";
 
-        // 1. Render all committed fields
-        itemsHtml += state.fields
-          .map((f) => {
-            const isExpanded = state.expandedFieldIds.has(f.id);
-            const isSelected = state.selectedFieldId === f.id;
-            const cellViews = Array.isArray(f.cellViews) ? f.cellViews : [];
-            const hasCells = cellViews.length > 0;
-
-            let cellsListHtml = "";
-            if (isExpanded) {
-              if (hasCells) {
-                cellsListHtml = `
-                  <div class="counter100x-cell-list">
-                    ${cellViews.map(cv => `
-                      <div class="counter100x-cell-item ${state.selectedCellId === cv.id ? "active" : ""}" data-field-id="${f.id}" data-cell-id="${cv.id}" title="Click to view Platelet ${cv.number} location">
-                        <span>Platelet ${cv.number}</span>
-                        <span class="counter100x-cell-jump-tag">
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 14 14"></polyline>
-                          </svg>
-                          view
-                        </span>
-                      </div>
-                    `).join("")}
-                  </div>
-                `;
-              } else {
-                cellsListHtml = `
-                  <div class="counter100x-cell-list">
-                    <div style="font-size: 9.5px; color: #94a3b8; font-style: italic; padding: 2px 4px;">No platelet coordinates recorded</div>
-                  </div>
-                `;
-              }
-            }
-
-            return `
-              <div class="counter100x-history-item ${isSelected ? "active" : ""} ${isExpanded ? "expanded" : ""}" data-id="${f.id}" title="Click to view Field ${f.number} location and toggle platelets">
-                <div class="counter100x-history-row">
-                  <span class="counter100x-history-field-name">
-                    <svg class="counter100x-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                    <b>Field ${f.number}</b>
-                  </span>
-                  <span class="counter100x-history-count">${f.cells} platelet${f.cells === 1 ? "" : "s"}</span>
-                </div>
-                ${cellsListHtml}
-              </div>
-            `;
-          })
-          .join("");
-
-        // 2. Render currently active field with 'in progress' indicator at bottom
+        // 1. Render currently active field first (if in progress)
         if (showInProgress) {
           const inProgressNumber = state.fields.length + 1;
           const activeFieldId = "f_in_progress";
@@ -1915,6 +2020,61 @@
             </div>
           `;
         }
+
+        // 2. Render all committed fields (reverse slice for descending order)
+        itemsHtml += state.fields
+          .slice()
+          .reverse()
+          .map((f) => {
+            const isExpanded = state.expandedFieldIds.has(f.id);
+            const isSelected = state.selectedFieldId === f.id;
+            const cellViews = Array.isArray(f.cellViews) ? f.cellViews : [];
+            const hasCells = cellViews.length > 0;
+
+            let cellsListHtml = "";
+            if (isExpanded) {
+              if (hasCells) {
+                cellsListHtml = `
+                  <div class="counter100x-cell-list">
+                    ${cellViews.map(cv => `
+                      <div class="counter100x-cell-item ${state.selectedCellId === cv.id ? "active" : ""}" data-field-id="${f.id}" data-cell-id="${cv.id}" title="Click to view Platelet ${cv.number} location">
+                        <span>Platelet ${cv.number}</span>
+                        <span class="counter100x-cell-jump-tag">
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 14 14"></polyline>
+                          </svg>
+                          view
+                        </span>
+                      </div>
+                    `).join("")}
+                  </div>
+                `;
+              } else {
+                cellsListHtml = `
+                  <div class="counter100x-cell-list">
+                    <div style="font-size: 9.5px; color: #94a3b8; font-style: italic; padding: 2px 4px;">No platelet coordinates recorded</div>
+                  </div>
+                `;
+              }
+            }
+
+            return `
+              <div class="counter100x-history-item ${isSelected ? "active" : ""} ${isExpanded ? "expanded" : ""}" data-id="${f.id}" title="Click to view Field ${f.number} location and toggle platelets">
+                <div class="counter100x-history-row">
+                  <span class="counter100x-history-field-name">
+                    <svg class="counter100x-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                    <b>Field ${f.number}</b>
+                  </span>
+                  <span class="counter100x-history-count">${f.cells} platelet${f.cells === 1 ? "" : "s"}</span>
+                </div>
+                ${cellsListHtml}
+              </div>
+            `;
+          })
+          .join("");
 
         listEl.innerHTML = itemsHtml;
 
@@ -1977,9 +2137,10 @@
     // Render Share & Minimize Action below field log
     const bottomActionsEl = document.getElementById("counter100xBottomActions");
     if (bottomActionsEl) {
+      const isShareDisabled = !state.isReviewMode && currentFieldCount === 0;
       bottomActionsEl.innerHTML = `
         <div class="counter100x-actions">
-          <button class="counter100x-btn counter100x-btn-secondary" id="counter100xShareBtn" title="Share Review Link" ${currentFieldCount === 0 ? "disabled" : ""}>
+          <button class="counter100x-btn counter100x-btn-secondary" id="counter100xShareBtn" title="${isShareDisabled ? "Count a field to enable sharing" : "Share Review Link"}" ${isShareDisabled ? "disabled" : ""}>
             <span>🔗</span> Share
           </button>
           <button class="counter100x-btn counter100x-btn-secondary" id="counter100xResetBtn" title="Reset Counts">
@@ -1995,7 +2156,12 @@
       if (shareBtn) {
         shareBtn.onclick = (e) => {
           e.preventDefault();
-          copyShareLink();
+          e.stopPropagation();
+          if (typeof window.__showLabShareTaskModal === "function") {
+            window.__showLabShareTaskModal();
+          } else {
+            copyShareLink();
+          }
         };
       }
 
@@ -2228,6 +2394,8 @@
           </div>
         </div>
 
+        <div class="counter100x-progress-card" id="counter100xProgressCard"></div>
+
         <div id="counter100xModePanel"></div>
 
         <div class="counter100x-summary">
@@ -2285,14 +2453,23 @@
       const counterStatusDot = document.getElementById("counter100xDot");
       const counterStatusText = document.getElementById("counter100xStatusText");
       if (counterStatusBar && counterStatusDot && counterStatusText) {
-        if (counterExpanded) {
+        const isFocused = (typeof document !== "undefined" && typeof document.hasFocus === "function") ? document.hasFocus() : true;
+        const isWindowActive = Boolean(state.mouseInWindow || isFocused);
+        if (state.isReviewMode) {
           counterStatusBar.classList.remove("inactive");
-          counterStatusDot.classList.remove("inactive");
+          counterStatusDot.className = "counter100x-dot review";
+          counterStatusText.textContent = "REVIEW";
+          counterStatusText.style.color = "#0284c7";
+        } else if (isWindowActive) {
+          counterStatusBar.classList.remove("inactive");
+          counterStatusDot.className = "counter100x-dot";
           counterStatusText.textContent = "ACTIVE";
+          counterStatusText.style.color = "#0284c7";
         } else {
           counterStatusBar.classList.add("inactive");
-          counterStatusDot.classList.add("inactive");
+          counterStatusDot.className = "counter100x-dot inactive";
           counterStatusText.textContent = "INACTIVE";
+          counterStatusText.style.color = "#64748b";
         }
       }
 
@@ -2437,7 +2614,11 @@
       },
       isMinimized: () => Boolean(state.minimized),
       showProcedure: showProcedureModal,
-      closeProcedure: closeProcedureModal
+      closeProcedure: closeProcedureModal,
+      getStatus: getPltStatus,
+      getSharePayload: getSharePayload,
+      getEncodedData: getSharePayload,
+      copyShareLink: copyShareLink
     };
 
     // Observe active card size changes (e.g. visited fields toggle, adding fields, window resizing)
@@ -2493,6 +2674,9 @@
 
     // Window focus / blur tracking
     document.addEventListener("mouseenter", () => updateTrackingStatus(true));
+    document.addEventListener("mousemove", () => {
+      if (!state.mouseInWindow) updateTrackingStatus(true);
+    }, { passive: true });
     document.addEventListener("mouseleave", (e) => {
       if (!e.relatedTarget && !e.toElement) {
         updateTrackingStatus(false);
@@ -2560,6 +2744,16 @@
     }, true);
 
     const isReview = loadReviewFromUrl();
+    if (isReview) {
+      state.minimized = false;
+      wrapper.classList.remove("minimized");
+      updateBadge();
+      if (typeof window.__update100xTaskPositions === "function") {
+        window.__update100xTaskPositions();
+      } else {
+        updateTaskPositions();
+      }
+    }
     renderUI();
 
     // Show initial startup modal only if differential_100x is not loaded (if standalone)
