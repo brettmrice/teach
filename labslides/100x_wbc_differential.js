@@ -1315,29 +1315,30 @@
     /* Toast */
     .diff100x-toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 28px;
       left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #1e1b4b;
+      transform: translateX(-50%);
+      background: #1e293b;
       color: #ffffff;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      box-shadow: 0 10px 25px -5px rgba(109, 40, 217, 0.35);
-      z-index: 1000000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      padding: 10px 22px;
+      border-radius: 28px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      z-index: 1000001;
       opacity: 0;
-      pointer-events: none;
       transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
       display: flex;
       align-items: center;
-      gap: 7px;
-      border: 1px solid #7c3aed;
+      gap: 8px;
     }
 
     .diff100x-toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+      transform: translateX(-50%) translateY(-8px);
     }
 
     /* Live Differential Pop-in Bubble Tray */
@@ -2134,7 +2135,7 @@
     }
   }
 
-  function showToast(message) {
+  function showToast(message, icon = "✓") {
     let toast = document.getElementById("diff100xToast");
     if (!toast) {
       toast = document.createElement("div");
@@ -2142,7 +2143,7 @@
       toast.id = "diff100xToast";
       document.body.appendChild(toast);
     }
-    toast.innerHTML = `<span>✓</span> <span>${message}</span>`;
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
     toast.classList.add("show");
     setTimeout(() => {
       toast.classList.remove("show");
@@ -2303,7 +2304,7 @@
     }
   }
 
-  function generateShareUrl() {
+  function getSharePayload() {
     if (state.cells.length === 0) return null;
     const compactData = state.cells.map(c => ({
       t: c.typeId,
@@ -2315,25 +2316,74 @@
     }));
 
     const jsonStr = JSON.stringify(compactData);
-    const encoded = btoa(encodeURIComponent(jsonStr));
+    return btoa(encodeURIComponent(jsonStr));
+  }
+
+  function generateUnifiedShareUrl() {
+    const url = new URL(window.location.href);
+
+    // WBC Differential
+    const diffStatus = getWbcStatus();
+    if (diffStatus.isComplete || state.isReviewMode) {
+      const wbcPayload = getSharePayload();
+      if (wbcPayload) url.searchParams.set("diff_review", wbcPayload);
+    }
+
+    // RBC Morphology
+    if (window.__RbcMorphology100X && typeof window.__RbcMorphology100X.getStatus === "function") {
+      const rbcStatus = window.__RbcMorphology100X.getStatus();
+      if (rbcStatus.isComplete && typeof window.__RbcMorphology100X.getSharePayload === "function") {
+        const rbcPayload = window.__RbcMorphology100X.getSharePayload();
+        if (rbcPayload) url.searchParams.set("rbc_review", rbcPayload);
+      }
+    }
+
+    // Platelet Estimate
+    if (window.__Counter100X && typeof window.__Counter100X.getStatus === "function") {
+      const pltStatus = window.__Counter100X.getStatus();
+      if (pltStatus.isComplete && typeof window.__Counter100X.getSharePayload === "function") {
+        const pltPayload = window.__Counter100X.getSharePayload();
+        if (pltPayload) url.searchParams.set("plt_review", pltPayload);
+      }
+    }
+
+    return url.toString();
+  }
+
+  window.__generateUnifiedLabShareUrl = generateUnifiedShareUrl;
+
+  function generateShareUrl() {
+    const unified = generateUnifiedShareUrl();
+    if (unified) return unified;
+
+    const encoded = getSharePayload();
+    if (!encoded) return null;
     const url = new URL(window.location.href);
     url.searchParams.set("diff_review", encoded);
     return url.toString();
   }
 
   function copyShareLink() {
-    if (state.cells.length === 0) {
+    if (state.cells.length === 0 && !state.isReviewMode) {
       soundError();
-      showToast("No cells counted yet to share.");
+      showToast("Classify a cell before sharing.", "ℹ");
       return;
     }
+
+    const totalWbc = getTotalWbcCount();
+    if (!state.isReviewMode && totalWbc < 100) {
+      soundError();
+      showToast("First complete 100 WBC before sharing.", "ℹ");
+      return;
+    }
+
     const shareUrl = generateShareUrl();
     if (!shareUrl) return;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(shareUrl).then(() => {
         soundSuccess();
-        showToast("Differential review link copied!");
+        showToast("Review link copied to clipboard!");
       }).catch(() => {
         window.prompt("Copy this review link:", shareUrl);
       });
@@ -2586,6 +2636,18 @@
         }
       } else {
         fullLogListEl.style.display = "none";
+      }
+    }
+
+    // Sync Share button enabled/disabled state
+    const shareBtn = document.getElementById("diff100xShareBtn");
+    if (shareBtn) {
+      const isShareDisabled = !state.isReviewMode && state.cells.length === 0;
+      shareBtn.disabled = isShareDisabled;
+      if (isShareDisabled) {
+        shareBtn.setAttribute("title", "Classify a cell to enable sharing");
+      } else {
+        shareBtn.setAttribute("title", "Share Review Link");
       }
     }
   }
@@ -3104,15 +3166,27 @@
     keyBackdrop.onclick = (e) => { if (e.target === keyBackdrop) closeKeyConfigModal(); };
   }
 
+  function getWbcStatus() {
+    const totalWbc = getTotalWbcCount();
+    if (totalWbc >= 100 || state.isReviewMode) {
+      return { text: "COMPLETE", className: "complete", isComplete: true };
+    }
+    if (state.cells.length > 0) {
+      return { text: "IN PROGRESS", className: "in-progress", isComplete: false };
+    }
+    return { text: "PERFORM", className: "perform", isComplete: false };
+  }
+
   function createStartupTaskModal() {
     if (document.getElementById("labTaskSelectionModalBackdrop")) return;
 
     const taskModalHtml = `
       <div class="diff100x-modal" style="max-width: 480px;" role="dialog" aria-modal="true">
-        <div class="diff100x-modal-header" style="justify-content: center; background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 20px 20px 12px;">
+        <div class="diff100x-modal-header" style="justify-content: center; background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 20px 20px 12px; position: relative;">
           <div style="text-align: center;">
-            <div style="font-size: 18px; font-weight: 800; color: #1e1b4b; letter-spacing: -0.2px;">Select Task</div>
+            <div id="labTaskModalTitle" style="font-size: 18px; font-weight: 800; color: #1e1b4b; letter-spacing: -0.2px;">Select Task</div>
           </div>
+          <button id="labTaskModalCloseBtn" style="position: absolute; right: 16px; top: 18px; background: transparent; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 4px; display: none; line-height: 1;">✕</button>
         </div>
         <div class="diff100x-modal-body" style="padding: 20px 24px 24px; display: flex; flex-direction: row; gap: 16px; justify-content: center;">
           <button id="labTaskSelectDiffBtn" style="
@@ -3134,6 +3208,7 @@
           ">
             <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #6d28d9;">WBC</span>
             <span style="font-size: 13px; font-weight: 600; color: #7c3aed; margin-top: 5px; letter-spacing: 0.2px;">Differential</span>
+            <span class="lab-task-status-pill" id="labTaskDiffStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
           </button>
 
           <button id="labTaskSelectRbcBtn" style="
@@ -3155,6 +3230,7 @@
           ">
             <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #e11d48;">RBC</span>
             <span style="font-size: 13px; font-weight: 600; color: #be123c; margin-top: 5px; letter-spacing: 0.2px;">Morphology</span>
+            <span class="lab-task-status-pill" id="labTaskRbcStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
           </button>
 
           <button id="labTaskSelectPltBtn" style="
@@ -3176,6 +3252,7 @@
           ">
             <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #0284c7;">PLT</span>
             <span style="font-size: 13px; font-weight: 600; color: #0369a1; margin-top: 5px; letter-spacing: 0.2px;">Estimate</span>
+            <span class="lab-task-status-pill" id="labTaskPltStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
           </button>
         </div>
       </div>
@@ -3187,18 +3264,47 @@
     backdrop.innerHTML = taskModalHtml;
     document.body.appendChild(backdrop);
 
+    const closeBtn = document.getElementById("labTaskModalCloseBtn");
+    if (closeBtn) {
+      closeBtn.onclick = (e) => {
+        e.preventDefault();
+        backdrop.classList.remove("open");
+      };
+    }
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) {
+        backdrop.classList.remove("open");
+      }
+    };
+  }
+
+  function showStartupTaskModal() {
+    createStartupTaskModal();
+    const backdrop = document.getElementById("labTaskSelectionModalBackdrop");
+    const titleEl = document.getElementById("labTaskModalTitle");
+    const closeBtn = document.getElementById("labTaskModalCloseBtn");
     const diffBtn = document.getElementById("labTaskSelectDiffBtn");
     const rbcBtn = document.getElementById("labTaskSelectRbcBtn");
     const pltBtn = document.getElementById("labTaskSelectPltBtn");
 
-    const closeTaskModal = () => {
-      backdrop.classList.remove("open");
-    };
+    if (titleEl) titleEl.textContent = "Select Task";
+    if (closeBtn) closeBtn.style.display = "none";
 
+    // Configure diff button for selection
     if (diffBtn) {
+      diffBtn.disabled = false;
+      diffBtn.style.opacity = "1";
+      diffBtn.style.cursor = "pointer";
+      diffBtn.style.background = "#f5f3ff";
+      diffBtn.style.borderColor = "#c4b5fd";
+      diffBtn.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.08)";
+      diffBtn.title = "Start WBC Differential";
+      const pill = document.getElementById("labTaskDiffStatusPill");
+      if (pill) pill.style.display = "none";
+
       diffBtn.onclick = (e) => {
         e.preventDefault();
-        closeTaskModal();
+        if (backdrop) backdrop.classList.remove("open");
         window.__Differential100X.expand();
       };
       diffBtn.onmouseenter = () => {
@@ -3215,10 +3321,21 @@
       };
     }
 
+    // Configure RBC button for selection
     if (rbcBtn) {
+      rbcBtn.disabled = false;
+      rbcBtn.style.opacity = "1";
+      rbcBtn.style.cursor = "pointer";
+      rbcBtn.style.background = "#fff1f2";
+      rbcBtn.style.borderColor = "#fda4af";
+      rbcBtn.style.boxShadow = "0 2px 8px rgba(225, 29, 72, 0.08)";
+      rbcBtn.title = "Start RBC Morphology";
+      const pill = document.getElementById("labTaskRbcStatusPill");
+      if (pill) pill.style.display = "none";
+
       rbcBtn.onclick = (e) => {
         e.preventDefault();
-        closeTaskModal();
+        if (backdrop) backdrop.classList.remove("open");
         if (window.__RbcMorphology100X && typeof window.__RbcMorphology100X.expand === "function") {
           window.__RbcMorphology100X.expand();
         }
@@ -3237,10 +3354,21 @@
       };
     }
 
+    // Configure PLT button for selection
     if (pltBtn) {
+      pltBtn.disabled = false;
+      pltBtn.style.opacity = "1";
+      pltBtn.style.cursor = "pointer";
+      pltBtn.style.background = "#f0f9ff";
+      pltBtn.style.borderColor = "#7dd3fc";
+      pltBtn.style.boxShadow = "0 2px 8px rgba(2, 132, 199, 0.08)";
+      pltBtn.title = "Start Platelet Estimate";
+      const pill = document.getElementById("labTaskPltStatusPill");
+      if (pill) pill.style.display = "none";
+
       pltBtn.onclick = (e) => {
         e.preventDefault();
-        closeTaskModal();
+        if (backdrop) backdrop.classList.remove("open");
         if (window.__Counter100X && typeof window.__Counter100X.expand === "function") {
           window.__Counter100X.expand();
         }
@@ -3258,13 +3386,128 @@
         pltBtn.style.boxShadow = "0 2px 8px rgba(2, 132, 199, 0.08)";
       };
     }
-  }
 
-  function showStartupTaskModal() {
-    createStartupTaskModal();
-    const backdrop = document.getElementById("labTaskSelectionModalBackdrop");
     if (backdrop) backdrop.classList.add("open");
   }
+
+  function showShareTaskModal() {
+    createStartupTaskModal();
+    const backdrop = document.getElementById("labTaskSelectionModalBackdrop");
+    const titleEl = document.getElementById("labTaskModalTitle");
+    const closeBtn = document.getElementById("labTaskModalCloseBtn");
+    const diffBtn = document.getElementById("labTaskSelectDiffBtn");
+    const rbcBtn = document.getElementById("labTaskSelectRbcBtn");
+    const pltBtn = document.getElementById("labTaskSelectPltBtn");
+
+    if (titleEl) titleEl.textContent = "Share Task";
+    if (closeBtn) closeBtn.style.display = "block";
+
+    // Query status of each task
+    const diffComplete = getWbcStatus().isComplete;
+    const rbcComplete = (window.__RbcMorphology100X && typeof window.__RbcMorphology100X.getStatus === "function")
+      ? window.__RbcMorphology100X.getStatus().isComplete
+      : false;
+    const pltComplete = (window.__Counter100X && typeof window.__Counter100X.getStatus === "function")
+      ? window.__Counter100X.getStatus().isComplete
+      : false;
+
+    // Helper to style active/grayed button
+    function applyShareButtonStyle(btn, pillEl, isComplete, activeBg, activeBorder, activeShadow, hoverBg, hoverBorder, hoverShadow, onShareClick, taskName, disabledReason) {
+      if (!btn) return;
+      if (pillEl) {
+        pillEl.style.display = "inline-block";
+        pillEl.textContent = isComplete ? "Complete" : "Incomplete";
+        pillEl.style.background = isComplete ? "#dcfce7" : "#e2e8f0";
+        pillEl.style.color = isComplete ? "#15803d" : "#64748b";
+        pillEl.style.border = isComplete ? "1px solid #bbf7d0" : "1px solid #cbd5e1";
+      }
+
+      if (isComplete) {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+        btn.style.background = activeBg;
+        btn.style.borderColor = activeBorder;
+        btn.style.boxShadow = activeShadow;
+        btn.title = `Share ${taskName} review link`;
+
+        btn.onclick = (e) => {
+          e.preventDefault();
+          if (backdrop) backdrop.classList.remove("open");
+          onShareClick();
+        };
+        btn.onmouseenter = () => {
+          btn.style.transform = "translateY(-2px)";
+          btn.style.background = hoverBg;
+          btn.style.borderColor = hoverBorder;
+          btn.style.boxShadow = hoverShadow;
+        };
+        btn.onmouseleave = () => {
+          btn.style.transform = "none";
+          btn.style.background = activeBg;
+          btn.style.borderColor = activeBorder;
+          btn.style.boxShadow = activeShadow;
+        };
+      } else {
+        btn.disabled = true;
+        btn.style.opacity = "0.45";
+        btn.style.cursor = "not-allowed";
+        btn.style.background = "#f1f5f9";
+        btn.style.borderColor = "#cbd5e1";
+        btn.style.boxShadow = "none";
+        btn.style.transform = "none";
+        btn.title = `${taskName} is not complete. ${disabledReason}`;
+        btn.onclick = null;
+        btn.onmouseenter = null;
+        btn.onmouseleave = null;
+      }
+    }
+
+    applyShareButtonStyle(
+      diffBtn,
+      document.getElementById("labTaskDiffStatusPill"),
+      diffComplete,
+      "#f5f3ff", "#c4b5fd", "0 2px 8px rgba(124, 58, 237, 0.08)",
+      "#ede9fe", "#8b5cf6", "0 6px 16px rgba(109, 40, 217, 0.18)",
+      () => copyShareLink(),
+      "WBC Differential",
+      "Complete 100 WBC before sharing."
+    );
+
+    applyShareButtonStyle(
+      rbcBtn,
+      document.getElementById("labTaskRbcStatusPill"),
+      rbcComplete,
+      "#fff1f2", "#fda4af", "0 2px 8px rgba(225, 29, 72, 0.08)",
+      "#ffe4e6", "#fb7185", "0 6px 16px rgba(225, 29, 72, 0.18)",
+      () => {
+        if (window.__RbcMorphology100X && typeof window.__RbcMorphology100X.copyShareLink === "function") {
+          window.__RbcMorphology100X.copyShareLink();
+        }
+      },
+      "RBC Morphology",
+      "Complete 10 fields and calculate average before sharing."
+    );
+
+    applyShareButtonStyle(
+      pltBtn,
+      document.getElementById("labTaskPltStatusPill"),
+      pltComplete,
+      "#f0f9ff", "#7dd3fc", "0 2px 8px rgba(2, 132, 199, 0.08)",
+      "#e0f2fe", "#38bdf8", "0 6px 16px rgba(2, 132, 199, 0.18)",
+      () => {
+        if (window.__Counter100X && typeof window.__Counter100X.copyShareLink === "function") {
+          window.__Counter100X.copyShareLink();
+        }
+      },
+      "Platelet Estimate",
+      "Complete 10 fields before sharing."
+    );
+
+    if (backdrop) backdrop.classList.add("open");
+  }
+
+  window.__showLabShareTaskModal = showShareTaskModal;
 
   function initDifferential() {
     const styleEl = document.createElement("style");
@@ -3333,7 +3576,7 @@
             <button class="diff100x-btn diff100x-btn-secondary" id="diff100xKeysBtn" title="Custom Key Bindings">
               <span>⌨</span> Keys
             </button>
-            <button class="diff100x-btn diff100x-btn-secondary" id="diff100xShareBtn" title="Share Review Link">
+            <button class="diff100x-btn diff100x-btn-secondary" id="diff100xShareBtn" title="Classify a cell to enable sharing" disabled>
               <span>🔗</span> Share
             </button>
             <button class="diff100x-btn diff100x-btn-secondary" id="diff100xResetBtn" title="Reset Counts">
@@ -3378,14 +3621,23 @@
       const diffStatusDot = document.getElementById("diff100xDot");
       const diffStatusText = document.getElementById("diff100xStatusText");
       if (diffStatusBar && diffStatusDot && diffStatusText) {
-        if (diffExpanded) {
+        const isFocused = (typeof document !== "undefined" && typeof document.hasFocus === "function") ? document.hasFocus() : true;
+        const isWindowActive = Boolean(state.mouseInWindow || isFocused);
+        if (state.isReviewMode) {
           diffStatusBar.classList.remove("inactive");
-          diffStatusDot.classList.remove("inactive");
+          diffStatusDot.className = "diff100x-dot review";
+          diffStatusText.textContent = "REVIEW";
+          diffStatusText.style.color = "#7c3aed";
+        } else if (isWindowActive) {
+          diffStatusBar.classList.remove("inactive");
+          diffStatusDot.className = "diff100x-dot";
           diffStatusText.textContent = "ACTIVE";
+          diffStatusText.style.color = "#7c3aed";
         } else {
           diffStatusBar.classList.add("inactive");
-          diffStatusDot.classList.add("inactive");
+          diffStatusDot.className = "diff100x-dot inactive";
           diffStatusText.textContent = "INACTIVE";
+          diffStatusText.style.color = "#94a3b8";
         }
       }
 
@@ -3540,7 +3792,12 @@
       },
       isMinimized: () => Boolean(state.minimized),
       showProcedure: showProcedureModal,
-      closeProcedure: closeProcedureModal
+      closeProcedure: closeProcedureModal,
+      getStatus: getWbcStatus,
+      getSharePayload: getSharePayload,
+      getEncodedData: getSharePayload,
+      copyShareLink: copyShareLink,
+      showShareModal: showShareTaskModal
     };
 
     // Event listeners
@@ -3583,7 +3840,13 @@
     }
 
     const shareBtn = document.getElementById("diff100xShareBtn");
-    if (shareBtn) shareBtn.onclick = copyShareLink;
+    if (shareBtn) {
+      shareBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showShareTaskModal();
+      };
+    }
 
     const resetBtn = document.getElementById("diff100xResetBtn");
     if (resetBtn) resetBtn.onclick = resetAll;
@@ -3598,6 +3861,9 @@
 
     // Window focus / mouse tracking
     document.addEventListener("mouseenter", () => updateTrackingStatus(true));
+    document.addEventListener("mousemove", () => {
+      if (!state.mouseInWindow) updateTrackingStatus(true);
+    }, { passive: true });
     document.addEventListener("mouseleave", (e) => {
       if (!e.relatedTarget && !e.toElement) updateTrackingStatus(false);
     });
@@ -3676,11 +3942,30 @@
     }, true);
 
     const isReview = loadReviewFromUrl();
+    if (isReview) {
+      state.minimized = false;
+      wrapper.classList.remove("minimized");
+      updateCollapseIndicator();
+      if (typeof window.__update100xTaskPositions === "function") {
+        window.__update100xTaskPositions();
+      } else {
+        updateTaskPositions();
+      }
+    }
     renderUI();
     attachViewerPanZoomListeners();
 
-    // Show initial task selection modal if not in review mode
-    if (!isReview) {
+    // Check if any tool's review link is present
+    let hasAnyReview = Boolean(isReview);
+    try {
+      const initialParams = new URLSearchParams(window.location.search);
+      if (initialParams.has("diff_review") || initialParams.has("rbc_review") || initialParams.has("rbc") || initialParams.has("review") || initialParams.has("plt_review")) {
+        hasAnyReview = true;
+      }
+    } catch (e) {}
+
+    // Show initial task selection modal only if not in any review mode
+    if (!hasAnyReview) {
       setTimeout(showStartupTaskModal, 50);
     }
   }
