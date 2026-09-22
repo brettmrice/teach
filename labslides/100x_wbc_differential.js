@@ -3188,71 +3188,94 @@
           </div>
           <button id="labTaskModalCloseBtn" style="position: absolute; right: 16px; top: 18px; background: transparent; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 4px; display: none; line-height: 1;">✕</button>
         </div>
-        <div class="diff100x-modal-body" style="padding: 20px 24px 24px; display: flex; flex-direction: row; gap: 16px; justify-content: center;">
-          <button id="labTaskSelectDiffBtn" style="
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 14px;
-            background: #f5f3ff;
-            color: #5b21b6;
-            border: 1.5px solid #c4b5fd;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
-            transition: all 0.16s ease;
-            font-family: inherit;
-            text-align: center;
-          ">
-            <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #6d28d9;">WBC</span>
-            <span style="font-size: 13px; font-weight: 600; color: #7c3aed; margin-top: 5px; letter-spacing: 0.2px;">Differential</span>
-            <span class="lab-task-status-pill" id="labTaskDiffStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
-          </button>
+        <div class="diff100x-modal-body" style="padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; flex-direction: row; gap: 16px; justify-content: center;">
+            <button id="labTaskSelectDiffBtn" style="
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 20px 14px;
+              background: #f5f3ff;
+              color: #5b21b6;
+              border: 1.5px solid #c4b5fd;
+              border-radius: 12px;
+              cursor: pointer;
+              box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+              transition: all 0.16s ease;
+              font-family: inherit;
+              text-align: center;
+            ">
+              <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #6d28d9;">WBC</span>
+              <span style="font-size: 13px; font-weight: 600; color: #7c3aed; margin-top: 5px; letter-spacing: 0.2px;">Differential</span>
+              <span class="lab-task-status-pill" id="labTaskDiffStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
+            </button>
 
-          <button id="labTaskSelectRbcBtn" style="
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 14px;
-            background: #fff1f2;
-            color: #be123c;
-            border: 1.5px solid #fda4af;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(225, 29, 72, 0.08);
-            transition: all 0.16s ease;
-            font-family: inherit;
-            text-align: center;
-          ">
-            <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #e11d48;">RBC</span>
-            <span style="font-size: 13px; font-weight: 600; color: #be123c; margin-top: 5px; letter-spacing: 0.2px;">Morphology</span>
-            <span class="lab-task-status-pill" id="labTaskRbcStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
-          </button>
+            <button id="labTaskSelectRbcBtn" style="
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 20px 14px;
+              background: #fff1f2;
+              color: #be123c;
+              border: 1.5px solid #fda4af;
+              border-radius: 12px;
+              cursor: pointer;
+              box-shadow: 0 2px 8px rgba(225, 29, 72, 0.08);
+              transition: all 0.16s ease;
+              font-family: inherit;
+              text-align: center;
+            ">
+              <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #e11d48;">RBC</span>
+              <span style="font-size: 13px; font-weight: 600; color: #be123c; margin-top: 5px; letter-spacing: 0.2px;">Morphology</span>
+              <span class="lab-task-status-pill" id="labTaskRbcStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
+            </button>
 
-          <button id="labTaskSelectPltBtn" style="
-            flex: 1;
+            <button id="labTaskSelectPltBtn" style="
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 20px 14px;
+              background: #f0f9ff;
+              color: #0369a1;
+              border: 1.5px solid #7dd3fc;
+              border-radius: 12px;
+              cursor: pointer;
+              box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
+              transition: all 0.16s ease;
+              font-family: inherit;
+              text-align: center;
+            ">
+              <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #0284c7;">PLT</span>
+              <span style="font-size: 13px; font-weight: 600; color: #0369a1; margin-top: 5px; letter-spacing: 0.2px;">Estimate</span>
+              <span class="lab-task-status-pill" id="labTaskPltStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
+            </button>
+          </div>
+
+          <button id="labTaskSelectViewOnlyBtn" style="
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px 14px;
-            background: #f0f9ff;
-            color: #0369a1;
-            border: 1.5px solid #7dd3fc;
+            padding: 16px 14px;
+            background: #f8fafc;
+            color: #334155;
+            border: 1.5px solid #cbd5e1;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
+            box-shadow: 0 2px 8px rgba(51, 65, 85, 0.06);
             transition: all 0.16s ease;
             font-family: inherit;
             text-align: center;
           ">
-            <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #0284c7;">PLT</span>
-            <span style="font-size: 13px; font-weight: 600; color: #0369a1; margin-top: 5px; letter-spacing: 0.2px;">Estimate</span>
-            <span class="lab-task-status-pill" id="labTaskPltStatusPill" style="display: none; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;"></span>
+            <span style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.15; color: #334155;">Scan</span>
+            <span style="font-size: 13px; font-weight: 600; color: #64748b; margin-top: 5px; letter-spacing: 0.2px;">View Only</span>
           </button>
         </div>
       </div>
@@ -3286,6 +3309,7 @@
     const diffBtn = document.getElementById("labTaskSelectDiffBtn");
     const rbcBtn = document.getElementById("labTaskSelectRbcBtn");
     const pltBtn = document.getElementById("labTaskSelectPltBtn");
+    const viewOnlyBtn = document.getElementById("labTaskSelectViewOnlyBtn");
 
     if (titleEl) titleEl.textContent = "Select Task";
     if (closeBtn) closeBtn.style.display = "none";
@@ -3387,6 +3411,39 @@
       };
     }
 
+    // Configure View Only button
+    if (viewOnlyBtn) {
+      viewOnlyBtn.style.display = "flex";
+      viewOnlyBtn.onclick = (e) => {
+        e.preventDefault();
+        if (backdrop) backdrop.classList.remove("open");
+        if (window.__Differential100X && typeof window.__Differential100X.collapse === "function") {
+          window.__Differential100X.collapse();
+        }
+        if (window.__RbcMorphology100X && typeof window.__RbcMorphology100X.collapse === "function") {
+          window.__RbcMorphology100X.collapse();
+        }
+        if (window.__Counter100X && typeof window.__Counter100X.collapse === "function") {
+          window.__Counter100X.collapse();
+        }
+        if (typeof window.__update100xTaskPositions === "function") {
+          window.__update100xTaskPositions();
+        }
+      };
+      viewOnlyBtn.onmouseenter = () => {
+        viewOnlyBtn.style.transform = "translateY(-2px)";
+        viewOnlyBtn.style.background = "#f1f5f9";
+        viewOnlyBtn.style.borderColor = "#94a3b8";
+        viewOnlyBtn.style.boxShadow = "0 6px 16px rgba(51, 65, 85, 0.14)";
+      };
+      viewOnlyBtn.onmouseleave = () => {
+        viewOnlyBtn.style.transform = "none";
+        viewOnlyBtn.style.background = "#f8fafc";
+        viewOnlyBtn.style.borderColor = "#cbd5e1";
+        viewOnlyBtn.style.boxShadow = "0 2px 8px rgba(51, 65, 85, 0.06)";
+      };
+    }
+
     if (backdrop) backdrop.classList.add("open");
   }
 
@@ -3398,9 +3455,11 @@
     const diffBtn = document.getElementById("labTaskSelectDiffBtn");
     const rbcBtn = document.getElementById("labTaskSelectRbcBtn");
     const pltBtn = document.getElementById("labTaskSelectPltBtn");
+    const viewOnlyBtn = document.getElementById("labTaskSelectViewOnlyBtn");
 
     if (titleEl) titleEl.textContent = "Share Task";
     if (closeBtn) closeBtn.style.display = "block";
+    if (viewOnlyBtn) viewOnlyBtn.style.display = "none";
 
     // Query status of each task
     const diffComplete = getWbcStatus().isComplete;
