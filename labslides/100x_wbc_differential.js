@@ -92,6 +92,7 @@
             return { ...d };
           });
         }
+        return NUMPAD_CELL_DEFS.map(d => ({ ...d }));
       }
     } catch (e) {
       console.warn("Could not load custom keys from localStorage:", e);
@@ -3559,7 +3560,7 @@
           window.__Counter100X.copyShareLink();
         }
       },
-      "Platelet Estimate",
+      "PLT Estimate",
       "Complete 10 fields before sharing."
     );
 
@@ -3700,100 +3701,39 @@
         }
       }
 
-      // When all are minimized:
-      // Space badges cleanly with gap
-      if (!diffExpanded && !rbcExpanded && !counterExpanded) {
-        const rbcCard = rbcWrapper ? rbcWrapper.querySelector(".rbcMorph100x-card") : null;
-        const diffCard = diffWrapper ? diffWrapper.querySelector(".diff100x-card") : null;
-        const counterCard = counterWrapper ? counterWrapper.querySelector(".counter100x-card") : null;
+      // Dynamic Task Positioning Coordinator (vertically centers and aligns entire active task stack)
+      const activeTasks = [diffWrapper, rbcWrapper, counterWrapper].filter(Boolean);
+      if (activeTasks.length === 0) return;
 
-        const rbcH = rbcCard ? rbcCard.offsetHeight : 46;
-        const diffH = diffCard ? diffCard.offsetHeight : 46;
-        const counterH = counterCard ? counterCard.offsetHeight : 46;
+      // Measure height of each task card
+      const heights = activeTasks.map(w => {
+        const card = w.querySelector(".diff100x-card, .rbcMorph100x-card, .counter100x-card") || w.firstElementChild;
+        if (card && card.offsetHeight > 0) {
+          return card.offsetHeight;
+        }
+        return w.classList.contains("minimized") ? 40 : 500;
+      });
 
-        const topOffset = Math.round(rbcH / 2 + gap + diffH / 2);
-        const bottomOffset = Math.round(rbcH / 2 + gap + counterH / 2);
+      const totalHeight = heights.reduce((sum, h) => sum + h, 0) + (activeTasks.length - 1) * gap;
 
-        if (diffWrapper) {
-          diffWrapper.style.transform = `translateY(calc(-50% - ${topOffset}px))`;
-        }
-        if (rbcWrapper) {
-          rbcWrapper.style.transform = "translateY(-50%)";
-        }
-        if (counterWrapper) {
-          counterWrapper.style.transform = `translateY(calc(-50% + ${bottomOffset}px))`;
-        }
-        return;
+      // Vertically center the entire stack around 50vh (top: 50%)
+      let currentTop = -totalHeight / 2;
+      const windowH = window.innerHeight || (document.documentElement ? document.documentElement.clientHeight : 800);
+      if (windowH / 2 + currentTop < 8) {
+        currentTop = 8 - windowH / 2;
       }
 
-      // If RBC Morphology is expanded (middle)
-      if (rbcExpanded) {
-        const rbcCard = rbcWrapper.querySelector(".rbcMorph100x-card");
-        const rbcHeight = rbcCard ? rbcCard.offsetHeight : 440;
-
-        if (diffWrapper && diffWrapper.classList.contains("minimized")) {
-          const diffCard = diffWrapper.querySelector(".diff100x-card");
-          const diffHeight = diffCard ? diffCard.offsetHeight : 40;
-          const offsetPx = Math.round(rbcHeight / 2 + gap + diffHeight / 2);
-          diffWrapper.style.setProperty("--diff100x-displaced-top", `calc(-50% - ${offsetPx}px)`);
-          diffWrapper.classList.add("displaced-top");
+      activeTasks.forEach((w, i) => {
+        const centerY = Math.round(currentTop + heights[i] / 2);
+        if (centerY === 0) {
+          w.style.transform = "translateY(-50%)";
+        } else if (centerY > 0) {
+          w.style.transform = `translateY(calc(-50% + ${centerY}px))`;
+        } else {
+          w.style.transform = `translateY(calc(-50% - ${Math.abs(centerY)}px))`;
         }
-
-        if (counterWrapper && counterWrapper.classList.contains("minimized")) {
-          const counterCard = counterWrapper.querySelector(".counter100x-card");
-          const counterHeight = counterCard ? counterCard.offsetHeight : 40;
-          const offsetPx = Math.round(rbcHeight / 2 + gap + counterHeight / 2);
-          counterWrapper.style.setProperty("--counter100x-displaced-bottom", `calc(-50% + ${offsetPx}px)`);
-          counterWrapper.classList.add("displaced-bottom");
-        }
-        return;
-      }
-
-      // If Differential is expanded (top)
-      if (diffExpanded) {
-        const diffCard = diffWrapper.querySelector(".diff100x-card");
-        const diffHeight = diffCard ? diffCard.offsetHeight : 540;
-
-        if (rbcWrapper && rbcWrapper.classList.contains("minimized")) {
-          const rbcCard = rbcWrapper.querySelector(".rbcMorph100x-card");
-          const rbcBadgeHeight = rbcCard ? rbcCard.offsetHeight : 40;
-          const offsetPx = Math.round(diffHeight / 2 + gap + rbcBadgeHeight / 2);
-          rbcWrapper.style.setProperty("--rbcMorph100x-displaced-bottom", `calc(-50% + ${offsetPx}px)`);
-          rbcWrapper.classList.add("displaced-bottom");
-
-          if (counterWrapper && counterWrapper.classList.contains("minimized")) {
-            const counterCard = counterWrapper.querySelector(".counter100x-card");
-            const counterBadgeHeight = counterCard ? counterCard.offsetHeight : 40;
-            const counterOffsetPx = offsetPx + rbcBadgeHeight + gap;
-            counterWrapper.style.setProperty("--counter100x-displaced-bottom", `calc(-50% + ${counterOffsetPx}px)`);
-            counterWrapper.classList.add("displaced-bottom");
-          }
-        }
-        return;
-      }
-
-      // If Counter / Platelet is expanded (bottom)
-      if (counterExpanded) {
-        const counterCard = counterWrapper.querySelector(".counter100x-card");
-        const counterHeight = counterCard ? counterCard.offsetHeight : 480;
-
-        if (rbcWrapper && rbcWrapper.classList.contains("minimized")) {
-          const rbcCard = rbcWrapper.querySelector(".rbcMorph100x-card");
-          const rbcBadgeHeight = rbcCard ? rbcCard.offsetHeight : 40;
-          const offsetPx = Math.round(counterHeight / 2 + gap + rbcBadgeHeight / 2);
-          rbcWrapper.style.setProperty("--rbcMorph100x-displaced-top", `calc(-50% - ${offsetPx}px)`);
-          rbcWrapper.classList.add("displaced-top");
-
-          if (diffWrapper && diffWrapper.classList.contains("minimized")) {
-            const diffCard = diffWrapper.querySelector(".diff100x-card");
-            const diffBadgeHeight = diffCard ? diffCard.offsetHeight : 40;
-            const diffOffsetPx = offsetPx + rbcBadgeHeight + gap;
-            diffWrapper.style.setProperty("--diff100x-displaced-top", `calc(-50% - ${diffOffsetPx}px)`);
-            diffWrapper.classList.add("displaced-top");
-          }
-        }
-        return;
-      }
+        currentTop += heights[i] + gap;
+      });
     }
 
     window.__update100xTaskPositions = updateTaskPositions;
@@ -3852,6 +3792,8 @@
       isMinimized: () => Boolean(state.minimized),
       showProcedure: showProcedureModal,
       closeProcedure: closeProcedureModal,
+      showKeys: showKeyConfigModal,
+      closeKeys: closeKeyConfigModal,
       getStatus: getWbcStatus,
       getSharePayload: getSharePayload,
       getEncodedData: getSharePayload,
@@ -3865,6 +3807,15 @@
       helpBtn.onclick = (e) => {
         e.stopPropagation();
         showProcedureModal();
+      };
+    }
+
+    const keysBtn = document.getElementById("diff100xKeysBtn");
+    if (keysBtn) {
+      keysBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showKeyConfigModal();
       };
     }
 
